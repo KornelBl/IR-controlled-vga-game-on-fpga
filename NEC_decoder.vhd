@@ -69,12 +69,12 @@ begin
 				state_duration <= 0;
 			else
 			   state <= next_state;
-				state_duration <= state_duration + 13 us;		-- might cause overflow problem, infinitely increasing while in idle, to solve
+				state_duration <= state_duration + 20 ns;		-- might cause overflow problem, infinitely increasing while in idle, to solve
 			end if;
 		end if;
 	end process clock_tick;
 	
-	data_check : process(state, ir_bit)
+	data_check : process(state)
 	begin
 		next_state <= state;
 		
@@ -137,6 +137,7 @@ begin
 						if read_bits = 32 then
 							next_state <= stop_bit;
 							state_duration <= 0 ns;
+							read_bits <= 0;
 						else
 							next_state <= data_leading;
 							state_duration <= 0 ns;
@@ -144,6 +145,7 @@ begin
 							if state_duration > LOGIC_ZERO_TIMEOUT then
 								code <= code + 1;
 							end if;
+							read_bits <= read_bits + 1;
 						end if;
 					else
 						next_state <= idle;
@@ -160,7 +162,7 @@ begin
 	
 	output : process(state)
 	begin
-		if state <= stop_bit then
+		if state = stop_bit then
 			rdy <= '1';
 		else
 			rdy <= '0';
