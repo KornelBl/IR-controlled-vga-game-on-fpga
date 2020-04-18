@@ -66,7 +66,7 @@ begin
 		if rising_edge(clk) then
 			if rst = '1' then
 				state <= idle;
-				state_duration <= 0;
+				state_duration <= 0 ns;
 			else
 			   state <= next_state;
 				state_duration <= state_duration + 20 ns;		-- might cause overflow problem, infinitely increasing while in idle, to solve
@@ -81,7 +81,7 @@ begin
 		case state is
 		
 			when idle =>
-				if ir_bit = 0 then
+				if ir_bit = '0' then
 					next_state <= leading_pulse;
 					state_duration <= 0 ns;
 				end if;
@@ -90,7 +90,7 @@ begin
 				if state_duration > LEADING_PULSE_TIMEOUT then
 					next_state <= idle;
 					state_duration <= 0 ns;
-				elsif ir_bit = 1 then
+				elsif ir_bit = '1' then
 					if state_duration >= LEADING_PULSE_PREPULSE then
 						next_state <= space;
 						state_duration <= 0 ns;
@@ -104,7 +104,7 @@ begin
 				if state_duration > SPACE_TIMEOUT then
 					next_state <= idle;
 					state_duration <= 0 ns;
-				elsif ir_bit = 0 then
+				elsif ir_bit = '0' then
 					if state_duration >= SPACE_PREPULSE then
 						next_state <= data_leading;
 						state_duration <= 0 ns;
@@ -118,7 +118,7 @@ begin
 				if state_duration > DATA_LEADING_TIMEOUT then
 					next_state <= idle;
 					state_duration <= 0 ns;
-				elsif ir_bit = 1 then
+				elsif ir_bit = '1' then
 					if state_duration >= DATA_LEADING_PREPULSE then
 						next_state <= data_logical_value;
 						state_duration <= 0 ns;
@@ -132,7 +132,7 @@ begin
 				if state_duration > DATA_LOGIC_VALUE_TIMEOUT then
 					next_state <= idle;
 					state_duration <= 0 ns;
-				elsif ir_bit = 0 then
+				elsif ir_bit = '0' then
 					if state >= DATA_LOGIC_VALUE_PREPULSE then
 						if read_bits = 32 then
 							next_state <= stop_bit;
