@@ -44,8 +44,8 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
          clk : IN  std_logic;
          rst : IN  std_logic;
          ir_bit : IN  std_logic;
-         code : OUT  std_logic_vector(31 downto 0)
-        );
+         code : OUT  std_logic_vector(31 downto 0);
+			rdy : out STD_LOGIC);
     END COMPONENT;
     
 
@@ -53,12 +53,17 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
    signal clk : std_logic := '0';
    signal rst : std_logic := '0';
    signal ir_bit : std_logic := '0';
+	
+	-- Constants
+	constant pulse_time : time := 560 us;
+	constant address : std_logic_vector(0 to 7) := "00001111";
+	constant command : std_logic_vector(0 to 7) := "11001100";
 
  	--Outputs
    signal code : std_logic_vector(31 downto 0);
 
    -- Clock period definitions
-   constant clk_period : time := 13 us;
+   constant clk_period : time := 20 ns;
  
 BEGIN
  
@@ -67,7 +72,8 @@ BEGIN
           clk => clk,
           rst => rst,
           ir_bit => ir_bit,
-          code => code
+          code => code,
+			 rdy => rdy
         );
 
    -- Clock process definitions
@@ -79,10 +85,80 @@ BEGIN
 		wait for clk_period/2;
    end process;
 	
-	test_decoder: process
+	
+	simulation_process: process
 	begin
+		ir_bit <= '1';
+		wait for 9 ms;
+		ir_bit <= '0';
+		wait for 4.5 ms;
+		
+		--Address
+		for i in 0 to 7 loop
+			if address(i) = '0' then
+				ir_bit <= '1';
+				wait for pulse_time;
+				ir_bit <= '0';
+				wait for pulse_time;
+			else
+				ir_bit <= '1';
+				wait for pulse_time;
+				ir_bit <= '0';
+				wait for pulse_time*3;
+			end if;
+		end loop;
+		
+		--Address inversed
+		for i in 0 to 7 loop
+			if address(i) = '1' then
+				ir_bit <= '1';
+				wait for pulse_time;
+				ir_bit <= '0';
+				wait for pulse_time;
+			else
+				ir_bit <= '1';
+				wait for pulse_time;
+				ir_bit <= '0';
+				wait for pulse_time*3;
+			end if;
+		end loop;
+				
+		--Command 
+		for i in 0 to 7 loop
+			if command(i) = '0' then
+				ir_bit <= '1';
+				wait for pulse_time;
+				ir_bit <= '0';
+				wait for pulse_time;
+			else
+				ir_bit <= '1';
+				wait for pulse_time;
+				ir_bit <= '0';
+				wait for pulse_time*3;
+			end if;
+		end loop;		
+		
+		--Command inversed
+		for i in 0 to 7 loop
+			if command(i) = '1' then
+				ir_bit <= '1';
+				wait for pulse_time;
+				ir_bit <= '0';
+				wait for pulse_time;
+			else
+				ir_bit <= '1';
+				wait for pulse_time;
+				ir_bit <= '0';
+				wait for pulse_time*3;
+			end if;
+		end loop;
+		--Stop bit
+		
+		ir_bit <= '1';
+		wait for pulse_time;
+		ir_bit <= '0';
 	
-	
+		
 	end process;
 
 END;
