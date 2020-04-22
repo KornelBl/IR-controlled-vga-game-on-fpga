@@ -67,7 +67,9 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
    constant clk_period : time := 20 ns;
  
 BEGIN
- 
+rst <= '0';
+
+
 	-- Instantiate the Unit Under Test (UUT)
    uut: NEC_decoder PORT MAP (
           clk => clk,
