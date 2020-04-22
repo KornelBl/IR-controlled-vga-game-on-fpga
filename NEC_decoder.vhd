@@ -46,6 +46,8 @@ signal state_duration : Time := 0 ns;
 signal data_counter : Time := 0 ns;
 signal read_bits : integer range 0 to 32 := 0; 
 
+signal in_code : STD_LOGIC_VECTOR (31 downto 0);
+
 constant LEADING_PULSE_PREPULSE : Time := 8 ms;
 constant LEADING_PULSE_TIMEOUT : Time := 11 ms;
 constant SPACE_PREPULSE : Time := 3 ms;
@@ -61,6 +63,7 @@ signal prepulse : Time := 0 ns;
 
 begin
 
+-- clock process, state
 	clock_tick : process(clk, rst)
 	begin
 		if rising_edge(clk) then
@@ -69,7 +72,7 @@ begin
 				state_duration <= 0 ns;
 			else
 			   state <= next_state;
-				state_duration <= state_duration + 20 ns;		-- might cause overflow problem, infinitely increasing while in idle, to solve
+				state_duration <= state_duration + 20 ns;		
 			end if;
 		end if;
 	end process clock_tick;
@@ -128,12 +131,12 @@ begin
 					end if;
 				end if;
 			
-			when data_logic_value =>
+			when data_logical_value =>
 				if state_duration > DATA_LOGIC_VALUE_TIMEOUT then
 					next_state <= idle;
 					state_duration <= 0 ns;
 				elsif ir_bit = '0' then
-					if state >= DATA_LOGIC_VALUE_PREPULSE then
+					if state_duration >= DATA_LOGIC_VALUE_PREPULSE then
 						if read_bits = 32 then
 							next_state <= stop_bit;
 							state_duration <= 0 ns;
@@ -141,9 +144,9 @@ begin
 						else
 							next_state <= data_leading;
 							state_duration <= 0 ns;
-							code <= std_logic_vector(code sll 1);
+							in_code <= in_code(30 downto 0) & '0';
 							if state_duration > LOGIC_ZERO_TIMEOUT then
-								code <= code + 1;
+								in_code(0) <= '1';
 							end if;
 							read_bits <= read_bits + 1;
 						end if;
@@ -163,6 +166,7 @@ begin
 	output : process(state)
 	begin
 		if state = stop_bit then
+			code <= in_code;
 			rdy <= '1';
 		else
 			rdy <= '0';

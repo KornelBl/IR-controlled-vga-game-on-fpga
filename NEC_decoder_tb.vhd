@@ -53,6 +53,7 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
    signal clk : std_logic := '0';
    signal rst : std_logic := '0';
    signal ir_bit : std_logic := '0';
+	signal rdy : std_logic := '0';
 	
 	-- Constants
 	constant pulse_time : time := 560 us;
