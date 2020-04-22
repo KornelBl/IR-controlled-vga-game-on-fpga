@@ -82,8 +82,8 @@ begin
 	end process clock_tick;
 	
 -- next_state, in_code, read_bits
-	data_check : process(state)
-	begin
+	data_check : process(state, ir_bit)
+	begin 
 		next_state <= state;
 		
 		case state is

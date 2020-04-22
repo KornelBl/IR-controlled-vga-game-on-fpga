@@ -91,75 +91,67 @@ rst <= '0';
 	
 	simulation_process: process
 	begin
-		ir_bit <= '1';
-		wait for 9 ms;
 		ir_bit <= '0';
+		wait for 9 ms;
+		ir_bit <= '1';
 		wait for 4.5 ms;
 		
 		--Address
 		for i in 0 to 7 loop
+			ir_bit <= '0';
+			wait for pulse_time;
 			if address(i) = '0' then
 				ir_bit <= '1';
 				wait for pulse_time;
-				ir_bit <= '0';
-				wait for pulse_time;
 			else
 				ir_bit <= '1';
-				wait for pulse_time;
-				ir_bit <= '0';
 				wait for pulse_time*3;
 			end if;
 		end loop;
 		
 		--Address inversed
 		for i in 0 to 7 loop
+			ir_bit <= '0';
+			wait for pulse_time;
 			if address(i) = '1' then
 				ir_bit <= '1';
 				wait for pulse_time;
-				ir_bit <= '0';
-				wait for pulse_time;
 			else
 				ir_bit <= '1';
-				wait for pulse_time;
-				ir_bit <= '0';
 				wait for pulse_time*3;
 			end if;
 		end loop;
 				
 		--Command 
 		for i in 0 to 7 loop
+			ir_bit <= '0';
+			wait for pulse_time;
 			if command(i) = '0' then
 				ir_bit <= '1';
 				wait for pulse_time;
-				ir_bit <= '0';
-				wait for pulse_time;
 			else
 				ir_bit <= '1';
-				wait for pulse_time;
-				ir_bit <= '0';
 				wait for pulse_time*3;
 			end if;
 		end loop;		
 		
 		--Command inversed
 		for i in 0 to 7 loop
+			ir_bit <= '0';
+			wait for pulse_time;
 			if command(i) = '1' then
 				ir_bit <= '1';
-				wait for pulse_time;
-				ir_bit <= '0';
-				wait for pulse_time;
+				wait for pulse_time; 
 			else
 				ir_bit <= '1';
-				wait for pulse_time;
-				ir_bit <= '0';
 				wait for pulse_time*3;
 			end if;
 		end loop;
 		--Stop bit
 		
-		ir_bit <= '1';
-		wait for pulse_time;
 		ir_bit <= '0';
+		wait for pulse_time;
+		ir_bit <= '1';
 	
 		
 	end process;
