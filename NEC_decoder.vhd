@@ -42,40 +42,37 @@ architecture Behavioral of NEC_decoder is
 
 type state_type is (idle, leading_pulse, space, data_leading, data_logical_value, stop_bit);
 signal state, next_state : state_type;
-signal state_duration : Time := 0 ns;
+signal state_duration : integer := 0;
 signal data_counter : Time := 0 ns;
 signal read_bits : integer range 0 to 32 := 0; 
 
-signal in_code : STD_LOGIC_VECTOR (31 downto 0);
+signal in_code : STD_LOGIC_VECTOR (31 downto 0) := (others => '0');
 
-constant LEADING_PULSE_PREPULSE : Time := 8 ms;
-constant LEADING_PULSE_TIMEOUT : Time := 11 ms;
-constant SPACE_PREPULSE : Time := 3 ms;
-constant SPACE_TIMEOUT : Time := 5500 us;
-constant DATA_LEADING_PREPULSE : Time := 200 us;
-constant DATA_LEADING_TIMEOUT : Time := 2300 us;
-constant DATA_LOGIC_VALUE_PREPULSE : Time := 200 us;
-constant DATA_LOGIC_VALUE_TIMEOUT : Time := 2300 us;
-constant LOGIC_ZERO_TIMEOUT : Time := 1 ms;
-
-signal timeout : Time := 0 ns;
-signal prepulse : Time := 0 ns;
+constant LEADING_PULSE_PREPULSE : integer := 8000000; -- 8ms
+constant LEADING_PULSE_TIMEOUT : integer := 11000000;
+constant SPACE_PREPULSE : integer := 3000000;
+constant SPACE_TIMEOUT : integer := 5500000;
+constant DATA_LEADING_PREPULSE : integer := 200000;
+constant DATA_LEADING_TIMEOUT : integer := 2300000;
+constant DATA_LOGIC_VALUE_PREPULSE : integer := 200000;
+constant DATA_LOGIC_VALUE_TIMEOUT : integer := 2300000;
+constant LOGIC_ZERO_TIMEOUT : integer := 1000000;
 
 begin
 
 -- clock , state_duration, state
-	clock_tick : process(clk, rst)
+	clock_tick : process(clk, rst, next_state)
 	begin
 		if rising_edge(clk) then
 			if rst = '1' then
 				state <= idle;
-				state_duration <= 0 ns;
+				state_duration <= 0;
 			else
 				if next_state /= state then
-					state_duration <= 0 ns;
+					state_duration <= 0;
 				end if;
 			   state <= next_state;
-				state_duration <= state_duration + 20 ns;		
+				state_duration <= state_duration + 20;		
 			end if;
 		end if;
 
