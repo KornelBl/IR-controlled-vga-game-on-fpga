@@ -152,7 +152,7 @@ rst <= '0';
 		ir_bit <= '0';
 		wait for pulse_time;
 		ir_bit <= '1';
-	
+		wait for 100 ms;
 		
 	end process;
 

@@ -70,12 +70,12 @@ begin
 			else
 				if next_state /= state then
 					state_duration <= 0;
+				else 
+					state_duration <= state_duration + 20;
 				end if;
 			   state <= next_state;
-				state_duration <= state_duration + 20;		
 			end if;
 		end if;
-
 	end process clock_tick;
 	
 -- next_state, in_code, read_bits
@@ -128,16 +128,16 @@ begin
 					next_state <= idle;
 				elsif ir_bit = '0' then
 					if state_duration >= DATA_LOGIC_VALUE_PREPULSE then
-						if read_bits = 32 then
+						in_code <= in_code(30 downto 0) & '0';
+						if state_duration > LOGIC_ZERO_TIMEOUT then
+							in_code(0) <= '1';
+						end if;
+						read_bits <= read_bits + 1;
+						if read_bits = 31 then
 							next_state <= stop_bit;
 							read_bits <= 0;
 						else
 							next_state <= data_leading;
-							in_code <= in_code(30 downto 0) & '0';
-							if state_duration > LOGIC_ZERO_TIMEOUT then
-								in_code(0) <= '1';
-							end if;
-							read_bits <= read_bits + 1;
 						end if;
 					else
 						next_state <= idle;
@@ -150,6 +150,12 @@ begin
 		end case;
 	
 	end process data_check;
+
+	
+	
+	
+	
+	
 	
 -- rdy, code	
 	output : process(state)
