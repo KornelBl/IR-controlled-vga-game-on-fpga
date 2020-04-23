@@ -43,6 +43,7 @@ architecture Behavioral of NEC_decoder is
 type state_type is (idle, leading_pulse, space, data_leading, data_logic_value, stop_bit, end_of_signal, error);
 signal state, next_state : state_type;
 signal state_duration : integer := 0;
+signal data_counter : Time := 0 ns;
 signal read_bits : integer range 0 to 32 := 0; 
 
 signal in_code : STD_LOGIC_VECTOR (31 downto 0) := (others => '0');
@@ -62,7 +63,7 @@ constant LOGIC_ZERO_TIMEOUT : integer := 1000000;
 begin
 
 -- clock , state_duration, state
-	clock_tick : process(clk, rst)
+	clock_tick : process(clk, rst, next_state)
 	begin
 		if rising_edge(clk) then
 			if rst = '1' then
@@ -79,8 +80,8 @@ begin
 		end if;
 	end process clock_tick;
 	
--- next_state, in_code, read_bits 
-	data_check : process(state,ir_bit)
+-- next_state, in_code, read_bits
+	data_check : process(state, ir_bit)
 	begin 
 		next_state <= state;
 		
@@ -127,19 +128,18 @@ begin
 			when data_logic_value =>
 				if state_duration > DATA_LOGIC_VALUE_TIMEOUT then
 					next_state <= error;
-				elsif ir_bit= = '0' then 
+				elsif ir_bit = '0' then
 					if state_duration >= DATA_LOGIC_VALUE_PREPULSE then
+						in_code <= in_code(30 downto 0) & '0';
 						if state_duration > LOGIC_ZERO_TIMEOUT then
-							in_code <= in_code(30 downto 0) & '1';
-						else
-							in_code <= in_code(30 downto 0) & '0';
+							in_code(0) <= '1';
 						end if;
+						read_bits <= read_bits + 1;
 						if read_bits = 31 then
 							next_state <= stop_bit;
 							read_bits <= 0;
 						else
 							next_state <= data_leading;
-							read_bits <= read_bits + 1;
 						end if;
 					else
 						next_state <= error;
@@ -166,7 +166,6 @@ begin
 		end case;
 	
 	end process data_check;	
-	
 	
 	
 -- rdy, code	
