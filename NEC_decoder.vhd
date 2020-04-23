@@ -40,7 +40,7 @@ end NEC_decoder;
 
 architecture Behavioral of NEC_decoder is
 
-type state_type is (idle, leading_pulse, space, data_leading, data_logical_value, stop_bit);
+type state_type is (idle, leading_pulse, space, data_leading, data_logic_value, stop_bit, end_of_signal, error);
 signal state, next_state : state_type;
 signal state_duration : integer := 0;
 signal data_counter : Time := 0 ns;
@@ -56,6 +56,8 @@ constant DATA_LEADING_PREPULSE : integer := 200000;
 constant DATA_LEADING_TIMEOUT : integer := 2300000;
 constant DATA_LOGIC_VALUE_PREPULSE : integer := 200000;
 constant DATA_LOGIC_VALUE_TIMEOUT : integer := 2300000;
+constant STOP_BIT_PREPULSE : integer := 200000;
+constant STOP_BIT_TIMEOUT : integer := 2300000;
 constant LOGIC_ZERO_TIMEOUT : integer := 1000000;
 
 begin
@@ -92,40 +94,40 @@ begin
 		
 			when leading_pulse =>
 				if state_duration > LEADING_PULSE_TIMEOUT then
-					next_state <= idle;
+					next_state <= error;
 				elsif ir_bit = '1' then
 					if state_duration >= LEADING_PULSE_PREPULSE then
 						next_state <= space;
 					else
-						next_state <= idle;
+						next_state <= error;
 					end if;	
 				end if;
 			
 			when space =>
 				if state_duration > SPACE_TIMEOUT then
-					next_state <= idle;
+					next_state <= error;
 				elsif ir_bit = '0' then
 					if state_duration >= SPACE_PREPULSE then
 						next_state <= data_leading;
 					else
-						next_state <= idle;
+						next_state <= error;
 					end if;
 				end if;
 				
 			when data_leading =>
 				if state_duration > DATA_LEADING_TIMEOUT then
-					next_state <= idle;
+					next_state <= error;
 				elsif ir_bit = '1' then
 					if state_duration >= DATA_LEADING_PREPULSE then
-						next_state <= data_logical_value;
+						next_state <= data_logic_value;
 					else
-						next_state <= idle;
+						next_state <= error;
 					end if;
 				end if;
 			
-			when data_logical_value =>
+			when data_logic_value =>
 				if state_duration > DATA_LOGIC_VALUE_TIMEOUT then
-					next_state <= idle;
+					next_state <= error;
 				elsif ir_bit = '0' then
 					if state_duration >= DATA_LOGIC_VALUE_PREPULSE then
 						in_code <= in_code(30 downto 0) & '0';
@@ -140,27 +142,36 @@ begin
 							next_state <= data_leading;
 						end if;
 					else
-						next_state <= idle;
+						next_state <= error;
 					end if;
 				end if;
 				
 			when stop_bit =>
+				if state_duration > STOP_BIT_TIMEOUT then
+					next_state <= error;
+				elsif ir_bit = '1' then
+					if state_duration >= STOP_BIT_PREPULSE then
+						next_state <= end_of_signal;
+					else
+						next_state <= error;
+					end if;
+				end if;
+				
+			when end_of_signal =>
+				next_state <= idle;
+				
+			when error =>
 				next_state <= idle;
 			
 		end case;
 	
-	end process data_check;
-
-	
-	
-	
-	
+	end process data_check;	
 	
 	
 -- rdy, code	
 	output : process(state)
 	begin
-		if state = stop_bit then
+		if state = end_of_signal then
 			code <= in_code;
 			rdy <= '1';
 		else
