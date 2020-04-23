@@ -127,7 +127,7 @@ begin
 			when data_logic_value =>
 				if state_duration > DATA_LOGIC_VALUE_TIMEOUT then
 					next_state <= error;
-				elsif ir_bit= = '0' then 
+				elsif ir_bit = '0' then 
 					if state_duration >= DATA_LOGIC_VALUE_PREPULSE then
 						if state_duration > LOGIC_ZERO_TIMEOUT then
 							in_code <= in_code(30 downto 0) & '1';
