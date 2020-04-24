@@ -80,7 +80,7 @@ begin
 	end process clock_tick;
 	
 -- next_state, in_code, read_bits 
-	data_check : process(state,ir_bit)
+	next_state_process : process(state, ir_bit, state_duration, read_bits)
 	begin 
 		next_state <= state;
 		
@@ -129,17 +129,10 @@ begin
 					next_state <= error;
 				elsif ir_bit = '0' then 
 					if state_duration >= DATA_LOGIC_VALUE_PREPULSE then
-						if state_duration > LOGIC_ZERO_TIMEOUT then
-							in_code <= in_code(30 downto 0) & '1';
-						else
-							in_code <= in_code(30 downto 0) & '0';
-						end if;
 						if read_bits = 31 then
 							next_state <= stop_bit;
-							read_bits <= 0;
 						else
 							next_state <= data_leading;
-							read_bits <= read_bits + 1;
 						end if;
 					else
 						next_state <= error;
@@ -165,18 +158,51 @@ begin
 			
 		end case;
 	
-	end process data_check;	
+	end process next_state_process;	
 	
 	
+	in_code_process : process(state, clk)
+	begin
+		if rising_edge(clk) then
+			if state = data_logic_value then
+				if state_duration <= DATA_LOGIC_VALUE_TIMEOUT and ir_bit = '0' and state_duration >= DATA_LOGIC_VALUE_PREPULSE then
+					if state_duration > LOGIC_ZERO_TIMEOUT then
+						in_code <= in_code(30 downto 0) & '1';
+					else
+						in_code <= in_code(30 downto 0) & '0';
+					end if;
+				end if;
+			end if;
+		end if;
+	end process in_code_process;
+	
+	
+	read_bits_process : process(state, clk)
+	begin
+		if rising_edge(clk) then
+			if state = data_logic_value then
+				if state_duration <= DATA_LOGIC_VALUE_TIMEOUT and ir_bit = '0' and state_duration >= DATA_LOGIC_VALUE_PREPULSE then
+					if read_bits = 31 then
+						read_bits <= 0;
+					else
+						read_bits <= read_bits + 1;
+					end if;
+				end if;
+			end if;
+		end if;
+	end process read_bits_process;
+		
 	
 -- rdy, code	
-	output : process(state)
+	output : process(state, clk)
 	begin
-		if state = end_of_signal then
-			code <= in_code;
-			rdy <= '1';
-		else
-			rdy <= '0';
+		if rising_edge(clk) then
+			if state = end_of_signal then
+				code <= in_code;
+				rdy <= '1';
+			else
+				rdy <= '0';
+			end if;
 		end if;
 	end process output;
 	

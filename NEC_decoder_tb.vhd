@@ -147,8 +147,8 @@ rst <= '0';
 				wait for pulse_time*3;
 			end if;
 		end loop;
-		--Stop bit
 		
+		--Stop bit
 		ir_bit <= '0';
 		wait for pulse_time;
 		ir_bit <= '1';
