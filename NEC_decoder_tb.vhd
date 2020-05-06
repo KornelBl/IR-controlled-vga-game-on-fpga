@@ -66,6 +66,46 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
    -- Clock period definitions
    constant clk_period : time := 20 ns;
  
+	-- Procedure
+	
+	procedure SendByte(	constant byte : in std_logic_vector(0 to 7);
+								signal in_bit : out std_logic
+	) is
+	begin
+		for i in 0 to 7 loop
+			in_bit <= '0';
+			wait for pulse_time;
+			if byte(i) = '0' then
+				in_bit <= '1';
+				wait for pulse_time;
+			else
+				in_bit <= '1';
+				wait for pulse_time*3;
+			end if;
+		end loop;	
+	end procedure;
+ 
+ 
+ 	procedure SendNegatedByte(	constant byte : in std_logic_vector(0 to 7);
+											signal in_bit : out std_logic
+	) is
+	begin
+		for i in 0 to 7 loop
+			in_bit <= '0';
+			wait for pulse_time;
+			if byte(i) = '1' then
+				in_bit <= '1';
+				wait for pulse_time;
+			else
+				in_bit <= '1';
+				wait for pulse_time*3;
+			end if;
+		end loop;	
+	end procedure;
+ 
+ 
+ 
+ 
 BEGIN
 rst <= '0';
 
@@ -97,56 +137,16 @@ rst <= '0';
 		wait for 4.5 ms;
 		
 		--Address
-		for i in 0 to 7 loop
-			ir_bit <= '0';
-			wait for pulse_time;
-			if address(i) = '0' then
-				ir_bit <= '1';
-				wait for pulse_time;
-			else
-				ir_bit <= '1';
-				wait for pulse_time*3;
-			end if;
-		end loop;
+		SendByte(address,ir_bit);
 		
-		--Address inversed
-		for i in 0 to 7 loop
-			ir_bit <= '0';
-			wait for pulse_time;
-			if address(i) = '1' then
-				ir_bit <= '1';
-				wait for pulse_time;
-			else
-				ir_bit <= '1';
-				wait for pulse_time*3;
-			end if;
-		end loop;
-				
+		--Address Negated
+		SendNegatedByte(address,ir_bit);
+		
 		--Command 
-		for i in 0 to 7 loop
-			ir_bit <= '0';
-			wait for pulse_time;
-			if command(i) = '0' then
-				ir_bit <= '1';
-				wait for pulse_time;
-			else
-				ir_bit <= '1';
-				wait for pulse_time*3;
-			end if;
-		end loop;		
-		
-		--Command inversed
-		for i in 0 to 7 loop
-			ir_bit <= '0';
-			wait for pulse_time;
-			if command(i) = '1' then
-				ir_bit <= '1';
-				wait for pulse_time; 
-			else
-				ir_bit <= '1';
-				wait for pulse_time*3;
-			end if;
-		end loop;
+		SendByte(command,ir_bit);
+
+		--Command Negated
+		SendNegatedByte(command, ir_bit);
 		
 		--Stop bit
 		ir_bit <= '0';
