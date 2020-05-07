@@ -34,7 +34,7 @@ entity NEC_decoder is
     Port ( clk : in  STD_LOGIC;
            rst : in  STD_LOGIC;
            ir_bit : in  STD_LOGIC;
-           output : out  STD_LOGIC_VECTOR (7 downto 0);
+           output_byte : out  STD_LOGIC_VECTOR (7 downto 0);
 			  rdy : out STD_LOGIC);
 end NEC_decoder;
 
@@ -208,10 +208,10 @@ begin
 	begin
 		if rising_edge(clk) then
 			if state = send_address then
-				output <= in_code(31 downto 24);
+				output_byte <= in_code(31 downto 24);
 				rdy <= '1';
 			elsif state = send_command then
-				output <= in_code(15 downto 8);
+				output_byte <= in_code(15 downto 8);
 				rdy <= '1';
 			else
 				rdy <= '0';
