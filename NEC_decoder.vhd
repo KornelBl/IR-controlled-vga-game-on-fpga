@@ -34,13 +34,13 @@ entity NEC_decoder is
     Port ( clk : in  STD_LOGIC;
            rst : in  STD_LOGIC;
            ir_bit : in  STD_LOGIC;
-           code : out  STD_LOGIC_VECTOR (31 downto 0);
+           output : out  STD_LOGIC_VECTOR (7 downto 0);
 			  rdy : out STD_LOGIC);
 end NEC_decoder;
 
 architecture Behavioral of NEC_decoder is
 
-type state_type is (idle, leading_pulse, space, data_leading, data_logic_value, stop_bit, end_of_signal, error);
+type state_type is (idle, leading_pulse, space, data_leading, data_logic_value, stop_bit, send_address, send_command, output_pause, error);
 signal state, next_state : state_type;
 signal state_duration : integer := 0;
 signal read_bits : integer range 0 to 32 := 0; 
@@ -80,7 +80,7 @@ begin
 	end process clock_tick;
 	
 -- next_state, in_code, read_bits 
-	next_state_process : process(state, ir_bit, state_duration, read_bits)
+	next_state_process : process(state, ir_bit, state_duration, read_bits, in_code)
 	begin 
 		next_state <= state;
 		
@@ -144,13 +144,23 @@ begin
 					next_state <= error;
 				elsif ir_bit = '1' then
 					if state_duration >= STOP_BIT_PREPULSE then
-						next_state <= end_of_signal;
+						if (in_code(7 downto 0) = not in_code(15 downto 8)) and (in_code(23 downto 16) = not in_code(31 downto 24)) then
+							next_state <= send_address;
+						else
+							next_state <= error;
+						end if;
 					else
 						next_state <= error;
 					end if;
 				end if;
 				
-			when end_of_signal =>
+			when send_address =>
+				next_state <= output_pause;
+			
+			when output_pause =>
+				next_state <= send_command;
+			
+			when send_command =>
 				next_state <= idle;
 				
 			when error =>
@@ -194,17 +204,20 @@ begin
 		
 	
 -- rdy, code	
-	output : process(state, clk)
+	output_process : process(state, clk)
 	begin
 		if rising_edge(clk) then
-			if state = end_of_signal then
-				code <= in_code;
+			if state = send_address then
+				output <= in_code(31 downto 24);
+				rdy <= '1';
+			elsif state = send_command then
+				output <= in_code(15 downto 8);
 				rdy <= '1';
 			else
 				rdy <= '0';
 			end if;
 		end if;
-	end process output;
+	end process output_process;
 	
 end Behavioral;
 
