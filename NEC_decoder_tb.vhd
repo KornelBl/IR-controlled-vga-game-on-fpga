@@ -44,7 +44,7 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
          clk : IN  std_logic;
          rst : IN  std_logic;
          ir_bit : IN  std_logic;
-         output : OUT  std_logic_vector(7 downto 0);
+         output_byte : OUT  std_logic_vector(7 downto 0);
 			rdy : out STD_LOGIC);
     END COMPONENT;
     
@@ -61,13 +61,14 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
 	constant command : std_logic_vector(0 to 7) := "11001100";
 
  	--Outputs
-   signal output : std_logic_vector(7 downto 0);
+   signal output_byte : std_logic_vector(7 downto 0);
 
    -- Clock period definitions
    constant clk_period : time := 20 ns;
  
-	-- Procedure
+	-- Procedures
 	
+		
 	procedure SendByte(	constant byte : in std_logic_vector(0 to 7);
 								signal in_bit : out std_logic
 	) is
@@ -102,6 +103,39 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
 			end if;
 		end loop;	
 	end procedure;
+	
+	
+	procedure SendSignal(constant addr: in std_logic_vector(0 to 7);
+								constant comm: in std_logic_vector(0 to 7);
+								signal in_bit: out std_logic
+	)is
+	begin
+	
+			in_bit <= '0';
+			wait for 9 ms;
+			in_bit <= '1';
+			wait for 4.5 ms;
+			
+			--Address
+			SendByte(addr,in_bit);
+			
+			--Address Negated
+			SendNegatedByte(addr,in_bit);
+			
+			--Command 
+			SendByte(comm,in_bit);
+
+			--Command Negated
+			SendNegatedByte(comm, in_bit);
+			
+			--Stop bit
+			in_bit <= '0';
+			wait for pulse_time;
+			in_bit <= '1';
+			
+	end procedure;
+	
+
  
  
  
@@ -114,7 +148,7 @@ rst <= '0';
           clk => clk,
           rst => rst,
           ir_bit => ir_bit,
-          output => output,
+          output_byte => output_byte,
 			 rdy => rdy
         );
 
@@ -130,29 +164,10 @@ rst <= '0';
 	
 	simulation_process: process
 	begin
-		ir_bit <= '0';
-		wait for 9 ms;
-		ir_bit <= '1';
-		wait for 4.5 ms;
-		
-		--Address
-		SendByte(address,ir_bit);
-		
-		--Address Negated
-		SendNegatedByte(address,ir_bit);
-		
-		--Command 
-		SendByte(command,ir_bit);
-
-		--Command Negated
-		SendNegatedByte(command, ir_bit);
-		
-		--Stop bit
-		ir_bit <= '0';
-		wait for pulse_time;
-		ir_bit <= '1';
-		wait for 100 ms;
-		
+		sendSignal("00001111","00110011",ir_bit);
+		wait for 20 ms;
+		sendSignal("00001111","11001100",ir_bit);
+		wait for 20 ms;
 	end process;
 
 END;
