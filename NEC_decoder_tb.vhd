@@ -44,7 +44,8 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
          clk : IN  std_logic;
          rst : IN  std_logic;
          ir_bit : IN  std_logic;
-         output_byte : OUT  std_logic_vector(7 downto 0);
+         output_address : OUT  std_logic_vector(7 downto 0);
+         output_command : OUT  std_logic_vector(7 downto 0);
 			rdy : out STD_LOGIC);
     END COMPONENT;
     
@@ -57,11 +58,10 @@ ARCHITECTURE behavior OF NEC_decoder_tb IS
 	
 	-- Constants
 	constant pulse_time : time := 560 us;
-	constant address : std_logic_vector(0 to 7) := "00001111";
-	constant command : std_logic_vector(0 to 7) := "11001100";
 
  	--Outputs
-   signal output_byte : std_logic_vector(7 downto 0);
+   signal output_address : std_logic_vector(7 downto 0);
+   signal output_command : std_logic_vector(7 downto 0);
 
    -- Clock period definitions
    constant clk_period : time := 20 ns;
@@ -148,7 +148,8 @@ rst <= '0';
           clk => clk,
           rst => rst,
           ir_bit => ir_bit,
-          output_byte => output_byte,
+          output_address => output_address,
+          output_command => output_command,
 			 rdy => rdy
         );
 

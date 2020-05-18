@@ -34,13 +34,14 @@ entity NEC_decoder is
     Port ( clk : in  STD_LOGIC;
            rst : in  STD_LOGIC;
            ir_bit : in  STD_LOGIC;
-           output_byte : out  STD_LOGIC_VECTOR (7 downto 0);
+           output_command : out  STD_LOGIC_VECTOR (7 downto 0);
+           output_address : out  STD_LOGIC_VECTOR (7 downto 0);
 			  rdy : out STD_LOGIC);
 end NEC_decoder;
 
 architecture Behavioral of NEC_decoder is
 
-type state_type is (idle, leading_pulse, space, data_leading, data_logic_value, stop_bit, send_address, send_command, output_pause, error);
+type state_type is (idle, leading_pulse, space, data_leading, data_logic_value, stop_bit, send_output, error);
 signal state, next_state : state_type;
 signal state_duration : integer := 0;
 signal read_bits : integer range 0 to 32 := 0; 
@@ -145,7 +146,7 @@ begin
 				elsif ir_bit = '1' then
 					if state_duration >= STOP_BIT_PREPULSE then
 						if (in_code(7 downto 0) = not in_code(15 downto 8)) and (in_code(23 downto 16) = not in_code(31 downto 24)) then
-							next_state <= send_address;
+							next_state <= send_output;
 						else
 							next_state <= error;
 						end if;
@@ -154,13 +155,7 @@ begin
 					end if;
 				end if;
 				
-			when send_address =>
-				next_state <= output_pause;
-			
-			when output_pause =>
-				next_state <= send_command;
-			
-			when send_command =>
+			when send_output =>
 				next_state <= idle;
 				
 			when error =>
@@ -207,11 +202,9 @@ begin
 	output_process : process(state, clk)
 	begin
 		if rising_edge(clk) then
-			if state = send_address then
-				output_byte <= in_code(31 downto 24);
-				rdy <= '1';
-			elsif state = send_command then
-				output_byte <= in_code(15 downto 8);
+			if state = send_output then
+				output_address <= in_code(31 downto 24);
+				output_command <= in_code(15 downto 8);
 				rdy <= '1';
 			else
 				rdy <= '0';
