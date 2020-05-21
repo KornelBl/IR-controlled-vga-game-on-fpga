@@ -27,7 +27,8 @@ ARCHITECTURE behavioral OF
           VGA_VS	:	OUT	STD_LOGIC; 
           CLK	:	IN	STD_LOGIC; 
           RST	:	IN	STD_LOGIC; 
-          IR_BIT	:	IN	STD_LOGIC);
+          IR_BIT	:	IN	STD_LOGIC;
+			 LOGIC_ONE : IN STD_LOGIC);
    END COMPONENT;
 
    SIGNAL VGA_HS	:	STD_LOGIC;
@@ -35,6 +36,7 @@ ARCHITECTURE behavioral OF
    SIGNAL CLK	:	STD_LOGIC;
    SIGNAL RST	:	STD_LOGIC;
    SIGNAL IR_BIT	:	STD_LOGIC;
+	SIGNAL LOGIC_ONE : STD_LOGIC := '1';
 
 	-- Constants
 	constant pulse_time : time := 560 us;
@@ -82,6 +84,37 @@ ARCHITECTURE behavioral OF
 		end loop;	
 	end procedure;
 	
+	
+	procedure SendSignal(constant addr: in std_logic_vector(0 to 7);
+								constant comm: in std_logic_vector(0 to 7);
+								signal in_bit: out std_logic
+	)is
+	begin
+	
+			in_bit <= '0';
+			wait for 9 ms;
+			in_bit <= '1';
+			wait for 4.5 ms;
+			
+			--Address
+			SendByte(addr,in_bit);
+			
+			--Address Negated
+			SendNegatedByte(addr,in_bit);
+			
+			--Command 
+			SendByte(comm,in_bit);
+
+			--Command Negated
+			SendNegatedByte(comm, in_bit);
+			
+			--Stop bit
+			in_bit <= '0';
+			wait for pulse_time;
+			in_bit <= '1';
+			
+	end procedure;
+	
 BEGIN
 
    UUT: print_address_and_command PORT MAP(
@@ -89,9 +122,9 @@ BEGIN
 		VGA_VS => VGA_VS, 
 		CLK => CLK, 
 		RST => RST, 
-		IR_BIT => IR_BIT
+		IR_BIT => IR_BIT,
+		LOGIC_ONE => LOGIC_ONE
    );
-
 
 
 
@@ -106,31 +139,12 @@ BEGIN
 	
 	
 -- *** Test Bench - User Defined Section ***
-simulation_process: process
+	simulation_process: process
 	begin
-		IR_BIT <= '0';
-		wait for 9 ms;
-		IR_BIT <= '1';
-		wait for 4.5 ms;
-		
-		--Address
-		SendByte(address,IR_BIT);
-		
-		--Address Negated
-		SendNegatedByte(address,IR_BIT);
-		
-		--Command 
-		SendByte(command,IR_BIT);
-
-		--Command Negated
-		SendNegatedByte(command, IR_BIT);
-		
-		--Stop bit
-		IR_BIT <= '0';
-		wait for pulse_time;
-		IR_BIT <= '1';
+		sendSignal("00001111","00110011",IR_BIT);
 		wait for 20 ms;
-		
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 20 ms;
 	end process;
 
 -- *** End Test Bench - User Defined Section ***
