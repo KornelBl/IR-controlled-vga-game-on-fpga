@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -88,8 +89,8 @@ end function;
 
 type state_type is (idle, input_state, output_state);
 signal state, next_state : state_type;
-signal addr, comm : std_logic_vector (0 to 15);
-signal line_counter : integer range 0 to 255;
+signal addr, comm, line : std_logic_vector (0 to 15);
+signal line_counter : std_logic_vector (0 to 7) := (others => '0');
 signal char_counter : integer := 0;
 
 begin
@@ -128,6 +129,19 @@ begin
 		end case;
 	
 	end process state_process;
+	
+	line_counter_process: process(clk,state,line_counter) 
+	begin
+		if rising_edge(clk) then
+			if state = input_state then
+				if line_counter /= X"FF" then
+					line_counter <= std_logic_vector(unsigned(line_counter)+1);
+				else
+					line_counter <= X"00";
+				end if;
+			end if;
+		end if;
+	end process line_counter_process;
 
 	input_to_ascii: process(state,clk)
 	begin
@@ -136,9 +150,18 @@ begin
 				addr <= bit_to_ascii(address);
 				comm <= bit_to_ascii(command);
 			end if;
-			
 		end if;
 	end process input_to_ascii;
+	
+	line_counter_to_ascii: process(state,clk)
+	begin
+		if rising_edge(clk) then
+			if state = input_state then
+				line <= bit_to_ascii(line_counter);
+			end if;
+			
+		end if;
+	end process line_counter_to_ascii;
 	
 	ready_process : process(clk,state,char_counter) 
 	begin
@@ -158,8 +181,8 @@ begin
 		if rising_edge(clk) then
 			if state = output_state then
 				case char_counter is
-					when 0 => output_byte <= X"55"; 
-					when 2 => output_byte <= X"55";
+					when 0 => output_byte <= line(0 to 7); 
+					when 2 => output_byte <= line(8 to 15);
 					when 4 => output_byte <= X"29";
 					when 6 => output_byte <= X"20";
 					when 8 => output_byte <= addr(0 to 7);
