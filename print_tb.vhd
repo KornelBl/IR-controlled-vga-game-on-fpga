@@ -142,9 +142,54 @@ BEGIN
 	simulation_process: process
 	begin
 		sendSignal("00001111","00110011",IR_BIT);
-		wait for 20 ms;
+		wait for 10 ms;
 		sendSignal("00001111","11001100",IR_BIT);
-		wait for 20 ms;
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","00110011",IR_BIT);
+		wait for 10 ms;
+		sendSignal("00001111","11001100",IR_BIT);
+		wait for 10 ms;
+		
 	end process;
 
 -- *** End Test Bench - User Defined Section ***

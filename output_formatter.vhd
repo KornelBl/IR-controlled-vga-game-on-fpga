@@ -90,7 +90,7 @@ end function;
 type state_type is (idle, input_state, output_state);
 signal state, next_state : state_type;
 signal addr, comm, line : std_logic_vector (0 to 15);
-signal line_counter : std_logic_vector (0 to 7) := (others => '0');
+signal line_counter : std_logic_vector (0 to 7) := X"01";
 signal char_counter : integer := 0;
 
 begin
@@ -134,8 +134,10 @@ begin
 	begin
 		if rising_edge(clk) then
 			if state = input_state then
-				if line_counter /= X"FF" then
+				if line_counter(4 to 7) /= X"9" then
 					line_counter <= std_logic_vector(unsigned(line_counter)+1);
+				elsif line_counter(0 to 3) /= X"9" then
+					line_counter <= std_logic_vector(unsigned(line_counter)+7);
 				else
 					line_counter <= X"00";
 				end if;
