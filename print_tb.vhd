@@ -27,8 +27,7 @@ ARCHITECTURE behavioral OF
           VGA_VS	:	OUT	STD_LOGIC; 
           CLK	:	IN	STD_LOGIC; 
           RST	:	IN	STD_LOGIC; 
-          IR_BIT	:	IN	STD_LOGIC;
-			 LOGIC_ONE : IN STD_LOGIC);
+          IR_BIT	:	IN	STD_LOGIC);
    END COMPONENT;
 
    SIGNAL VGA_HS	:	STD_LOGIC;
@@ -36,12 +35,9 @@ ARCHITECTURE behavioral OF
    SIGNAL CLK	:	STD_LOGIC;
    SIGNAL RST	:	STD_LOGIC;
    SIGNAL IR_BIT	:	STD_LOGIC;
-	SIGNAL LOGIC_ONE : STD_LOGIC := '1';
 
 	-- Constants
 	constant pulse_time : time := 560 us;
-	constant address : std_logic_vector(0 to 7) := "00001111";
-	constant command : std_logic_vector(0 to 7) := "11001100";
 
    -- Clock period definitions
    constant clk_period : time := 20 ns;
@@ -122,8 +118,7 @@ BEGIN
 		VGA_VS => VGA_VS, 
 		CLK => CLK, 
 		RST => RST, 
-		IR_BIT => IR_BIT,
-		LOGIC_ONE => LOGIC_ONE
+		IR_BIT => IR_BIT
    );
 
 
