@@ -89,7 +89,7 @@ end function;
 
 type state_type is (idle, input_state, output_state);
 signal state, next_state : state_type;
-signal addr, comm, line : std_logic_vector (0 to 15);
+signal addr, comm, line : std_logic_vector (0 to 15) := X"0000";
 signal line_counter : std_logic_vector (0 to 7) := X"01";
 signal char_counter : integer := 0;
 

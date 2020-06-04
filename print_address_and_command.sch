@@ -19,11 +19,20 @@
         <signal name="XLXN_66(0:7)" />
         <signal name="CLK" />
         <signal name="RST" />
+        <signal name="XLXN_76" />
+        <signal name="XLXN_77" />
+        <signal name="XLXN_78" />
+        <signal name="VGA_R" />
+        <signal name="VGA_G" />
+        <signal name="VGA_B" />
         <port polarity="Output" name="VGA_HS" />
         <port polarity="Output" name="VGA_VS" />
         <port polarity="Input" name="IR_BIT" />
         <port polarity="Input" name="CLK" />
         <port polarity="Input" name="RST" />
+        <port polarity="Output" name="VGA_R" />
+        <port polarity="Output" name="VGA_G" />
+        <port polarity="Output" name="VGA_B" />
         <blockdef name="VGAtxt48x20">
             <timestamp>2008-9-4T9:59:2</timestamp>
             <rect width="304" x="64" y="-640" height="728" />
@@ -75,6 +84,14 @@
             <rect width="112" x="0" y="0" height="64" />
             <line x2="112" y1="32" y2="32" x1="144" />
         </blockdef>
+        <blockdef name="buf">
+            <timestamp>2000-1-1T10:10:10</timestamp>
+            <line x2="64" y1="-32" y2="-32" x1="0" />
+            <line x2="128" y1="-32" y2="-32" x1="224" />
+            <line x2="128" y1="0" y2="-32" x1="64" />
+            <line x2="64" y1="-32" y2="-64" x1="128" />
+            <line x2="64" y1="-64" y2="0" x1="64" />
+        </blockdef>
         <block symbolname="VGAtxt48x20" name="XLXI_2">
             <blockpin signalname="XLXN_66(0:7)" name="Char_DI(7:0)" />
             <blockpin name="Home" />
@@ -88,7 +105,7 @@
             <blockpin name="Busy" />
             <blockpin signalname="VGA_HS" name="VGA_HS" />
             <blockpin signalname="VGA_VS" name="VGA_VS" />
-            <blockpin name="VGA_RGB" />
+            <blockpin signalname="XLXN_77" name="VGA_RGB" />
             <blockpin signalname="XLXN_64" name="Char_WE" />
         </block>
         <block symbolname="NEC_decoder" name="XLXI_3">
@@ -116,6 +133,18 @@
                 <trait valuetype="BitVector 32 Hexadecimal" />
             </attr>
             <blockpin signalname="LOGIC_ONE" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_7">
+            <blockpin signalname="XLXN_77" name="I" />
+            <blockpin signalname="VGA_R" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_8">
+            <blockpin signalname="XLXN_77" name="I" />
+            <blockpin signalname="VGA_G" name="O" />
+        </block>
+        <block symbolname="buf" name="XLXI_9">
+            <blockpin signalname="XLXN_77" name="I" />
+            <blockpin signalname="VGA_B" name="O" />
         </block>
     </netlist>
     <sheet sheetnum="1" width="3520" height="2720">
@@ -203,5 +232,28 @@
         </branch>
         <instance x="1632" y="1248" name="LOGIC_HIGH" orien="R0">
         </instance>
+        <instance x="2496" y="992" name="XLXI_7" orien="R0" />
+        <instance x="2496" y="1072" name="XLXI_8" orien="R0" />
+        <instance x="2496" y="1152" name="XLXI_9" orien="R0" />
+        <branch name="XLXN_77">
+            <wire x2="2416" y1="960" y2="960" x1="2368" />
+            <wire x2="2496" y1="960" y2="960" x1="2416" />
+            <wire x2="2416" y1="960" y2="1040" x1="2416" />
+            <wire x2="2496" y1="1040" y2="1040" x1="2416" />
+            <wire x2="2416" y1="1040" y2="1120" x1="2416" />
+            <wire x2="2496" y1="1120" y2="1120" x1="2416" />
+        </branch>
+        <branch name="VGA_R">
+            <wire x2="2752" y1="960" y2="960" x1="2720" />
+        </branch>
+        <iomarker fontsize="28" x="2752" y="960" name="VGA_R" orien="R0" />
+        <branch name="VGA_G">
+            <wire x2="2752" y1="1040" y2="1040" x1="2720" />
+        </branch>
+        <iomarker fontsize="28" x="2752" y="1040" name="VGA_G" orien="R0" />
+        <branch name="VGA_B">
+            <wire x2="2752" y1="1120" y2="1120" x1="2720" />
+        </branch>
+        <iomarker fontsize="28" x="2752" y="1120" name="VGA_B" orien="R0" />
     </sheet>
 </drawing>
